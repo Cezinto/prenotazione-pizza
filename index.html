@@ -3,78 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prenotazione Pizza</title>
+  <title>Prenotazione Pizza - Login/Registrazione</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-    h2 { margin-top: 0; }
-    .login, .orari { margin-bottom: 30px; }
-    input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .slot { background: #fff; padding: 10px; border: 1px solid #ccc; cursor: pointer; position: relative; }
-    .dropdown { display: none; background: #eef; padding: 10px; margin-top: 5px; }
-    .visible { display: block; }
+    body { font-family: Arial, sans-serif; background-color: #f2f2f2; }
+    .container { width: 300px; margin: 50px auto; padding: 20px; background-color: #fff; border-radius: 5px; }
+    h2 { text-align: center; }
+    input[type=text], input[type=password] {
+      width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px;
+    }
+    button {
+      width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;
+    }
+    .toggle-btn {
+      background-color: #008CBA;
+      margin-top: 10px;
+    }
+    .message { color: red; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="login">
-    <h2>Login Cliente</h2>
-    <input type="text" id="nome" placeholder="Nome">
-    <input type="text" id="numero" placeholder="Numero di telefono">
-    <button onclick="login()">Entra</button>
-  </div>
 
-  <div class="orari" style="display:none">
-    <h2>Seleziona un orario</h2>
-    <div class="grid" id="griglia"></div>
-  </div>
+<div class="container" id="auth-container">
+  <h2 id="form-title">Accesso</h2>
+  <div class="message" id="message"></div>
+  <input type="text" id="username" placeholder="Nome utente" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <input type="password" id="confirm-password" placeholder="Conferma Password" style="display: none;">
+  <button id="submit-btn">Accedi</button>
+  <button class="toggle-btn" id="toggle-btn">Registrati</button>
+</div>
 
-  <script>
-    const orari = [
-      "7:00", "7:15", "7:30", "7:45",
-      "8:00", "8:15", "8:30", "8:45",
-      "9:00", "9:15", "9:30", "9:45"
-    ];
+<script>
+  const authContainer = document.getElementById('auth-container');
+  const formTitle = document.getElementById('form-title');
+  const message = document.getElementById('message');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirm-password');
+  const submitBtn = document.getElementById('submit-btn');
+  const toggleBtn = document.getElementById('toggle-btn');
 
-    function login() {
-      const nome = document.getElementById('nome').value.trim();
-      const numero = document.getElementById('numero').value.trim();
-      if (nome && numero) {
-        document.querySelector('.login').style.display = 'none';
-        document.querySelector('.orari').style.display = 'block';
-        generaGriglia();
+  let isLogin = true;
+
+  toggleBtn.addEventListener('click', () => {
+    isLogin = !isLogin;
+    if (isLogin) {
+      formTitle.textContent = 'Accesso';
+      submitBtn.textContent = 'Accedi';
+      toggleBtn.textContent = 'Registrati';
+      confirmPasswordInput.style.display = 'none';
+    } else {
+      formTitle.textContent = 'Registrazione';
+      submitBtn.textContent = 'Registrati';
+      toggleBtn.textContent = 'Accedi';
+      confirmPasswordInput.style.display = 'block';
+    }
+    message.textContent = '';
+    usernameInput.value = '';
+    passwordInput.value = '';
+    confirmPasswordInput.value = '';
+  });
+
+  submitBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (!username || !password || (!isLogin && !confirmPassword)) {
+      message.textContent = 'Per favore, compila tutti i campi.';
+      return;
+    }
+
+    if (!isLogin && password !== confirmPassword) {
+      message.textContent = 'Le password non corrispondono.';
+      return;
+    }
+
+    let users = JSON.parse(localStorage.getItem('users')) || {};
+
+    if (isLogin) {
+      if (users[username] && users[username] === password) {
+        message.style.color = 'green';
+        message.textContent = 'Accesso riuscito!';
+        // Reindirizza alla pagina principale o esegui altre azioni
       } else {
-        alert("Inserisci nome e numero");
+        message.textContent = 'Nome utente o password errati.';
+      }
+    } else {
+      if (users[username]) {
+        message.textContent = 'Il nome utente esiste gi\u00e0.';
+      } else {
+        users[username] = password;
+        localStorage.setItem('users', JSON.stringify(users));
+        message.style.color = 'green';
+        message.textContent = 'Registrazione completata con successo!';
+        // Passa alla modalità login
+        toggleBtn.click();
       }
     }
+  });
+</script>
 
-    function generaGriglia() {
-      const griglia = document.getElementById('griglia');
-      orari.forEach(orario => {
-        const cella = document.createElement('div');
-        cella.className = 'slot';
-        cella.innerHTML = `<strong>${orario}</strong>
-          <div class="dropdown" id="drop-${orario.replace(':','')}">
-            <label>Pizza:</label>
-            <select>
-              <option>Margherita</option>
-              <option>Diavola</option>
-              <option>4 Stagioni</option>
-            </select>
-            <label>Quantità:</label>
-            <input type="number" min="1" value="1">
-            <button onclick="prenota('${orario}')">Prenota</button>
-          </div>`;
-        cella.onclick = () => {
-          const dropdown = document.getElementById(drop-${orario.replace(':','')});
-          dropdown.classList.toggle('visible');
-        };
-        griglia.appendChild(cella);
-      });
-    }
-
-    function prenota(orario) {
-      alert(Prenotazione confermata per le ${orario}!);
-    }
-  </script>
 </body>
 </html>
