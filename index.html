@@ -78,7 +78,9 @@
       message.textContent = 'Le password non corrispondono.';
       return;
     }
-if (isLogin) {
+    let users = JSON.parse(localStorage.getItem('users')) || {};
+
+   if (isLogin) {
   if (users[username] && users[username] === password) {
     localStorage.setItem("loggedInUser", username); // salva chi ha fatto il login
     window.location.href = "home.html"; // vai alla home
@@ -86,13 +88,6 @@ if (isLogin) {
     message.textContent = 'Nome utente o password errati.';
   }
 }
-    let users = JSON.parse(localStorage.getItem('users')) || {};
-
-    if (isLogin) {
-      if (users[username] && users[username] === password) {
-        message.style.color = 'green';
-        message.textContent = 'Accesso riuscito!';
-        // Reindirizza alla pagina principale o esegui altre azioni
       } else {
         message.textContent = 'Nome utente o password errati.';
       }
