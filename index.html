@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenotazione Pizza</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    h2 { margin-top: 0; }
+    .login, .orari { margin-bottom: 30px; }
+    input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .slot { background: #fff; padding: 10px; border: 1px solid #ccc; cursor: pointer; position: relative; }
+    .dropdown { display: none; background: #eef; padding: 10px; margin-top: 5px; }
+    .visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="login">
+    <h2>Login Cliente</h2>
+    <input type="text" id="nome" placeholder="Nome">
+    <input type="text" id="numero" placeholder="Numero di telefono">
+    <button onclick="login()">Entra</button>
+  </div>
+
+  <div class="orari" style="display:none">
+    <h2>Seleziona un orario</h2>
+    <div class="grid" id="griglia"></div>
+  </div>
+
+  <script>
+    const orari = [
+      "7:00", "7:15", "7:30", "7:45",
+      "8:00", "8:15", "8:30", "8:45",
+      "9:00", "9:15", "9:30", "9:45"
+    ];
+
+    function login() {
+      const nome = document.getElementById('nome').value.trim();
+      const numero = document.getElementById('numero').value.trim();
+      if (nome && numero) {
+        document.querySelector('.login').style.display = 'none';
+        document.querySelector('.orari').style.display = 'block';
+        generaGriglia();
+      } else {
+        alert("Inserisci nome e numero");
+      }
+    }
+
+    function generaGriglia() {
+      const griglia = document.getElementById('griglia');
+      orari.forEach(orario => {
+        const cella = document.createElement('div');
+        cella.className = 'slot';
+        cella.innerHTML = `<strong>${orario}</strong>
+          <div class="dropdown" id="drop-${orario.replace(':','')}">
+            <label>Pizza:</label>
+            <select>
+              <option>Margherita</option>
+              <option>Diavola</option>
+              <option>4 Stagioni</option>
+            </select>
+            <label>Quantità:</label>
+            <input type="number" min="1" value="1">
+            <button onclick="prenota('${orario}')">Prenota</button>
+          </div>`;
+        cella.onclick = () => {
+          const dropdown = document.getElementById(drop-${orario.replace(':','')});
+          dropdown.classList.toggle('visible');
+        };
+        griglia.appendChild(cella);
+      });
+    }
+
+    function prenota(orario) {
+      alert(Prenotazione confermata per le ${orario}!);
+    }
+  </script>
+</body>
+</html>
